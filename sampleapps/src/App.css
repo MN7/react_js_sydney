@@ -1,24 +1,104 @@
-.App {
+.MainForm {
+  max-width: 80%;
+}
+
+.Main-header {
+  overflow: hidden;
+  background-color: #bbb;
+  height: 40px;
+  margin: 5px 0px 0px 5px;
+  padding: 5px 0px 0px 0px;
+  font-size: 24px;
+  color: #722;
+  max-width: 60%;
+  vertical-align: middle;
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.Login-header {
+  float: right;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.Login-btn {
+  background-color: #ddd;
+  border: none;
+  color: #722;
+  padding: 3px 12px 3px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 16px;
 }
 
-.App-intro {
-  font-size: large;
+.Form-header {
+  overflow: hidden;
+  background-color: #bbb;
+  height: 40px;
+  margin: 5px 0px 0px 5px;
+  padding: 5px 0px 0px 0px;
+  font-size: 24px;
+  color: #227;
+  max-width: 60%;
+  vertical-align: middle;
+  text-align: center;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.Main-footer {
+  border-style: inset;
+  margin: 5px 0px 0px 5px;
+  padding: 5px 0px 0px 0px;
+  max-width: 60%;
+  vertical-align: middle;
+}
+
+.LoginInfo {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  max-width: 55%;
+  margin: 10px;
+  padding: 10px 40px 10px 40px;
+  border-style: groove;
+}
+
+.LItext {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  max-width: 350px;
+}
+
+.LIbuttons {
+  display: flex;
+  flex-direction: column;
+  max-width: 350px;
+  margin-left: 30px;
+}
+
+.GenericInput {
+  margin: 15px 10px;
+  padding: 0px 5px;
+  font-size: 18px;
+  border-style: inset;
+  border-radius: 10px;
+}
+
+.GenericButton {
+  font-size: 12px;
+  background-color: #ddd;
+  border: none;
+  color: #373ddf;
+  margin: 10px;
+  padding: 10px 20px 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.GenericButton:hover {
+  opacity: 0.6;
+  color: #e44
 }

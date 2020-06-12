@@ -10,6 +10,7 @@
   "devDependencies": {},
   "scripts": {
     "start": "react-scripts start",
+    "killnode": "pkill -9 node",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
