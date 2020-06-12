@@ -1,0 +1,7 @@
+Day 0 (12 Jun 2020)
+
+A. Creating git repo on github & use git-pull to get the files onto local
+
+B. Use create-react-app to create react app. Worked okay.
+  1. "npm start" did not auto-refresh on changing files.
+      Fixed by adding a .env file under the sampleapps folder with the env-var CHOKIDAR_USEPOLLING=true
