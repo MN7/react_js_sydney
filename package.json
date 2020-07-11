@@ -1,0 +1,34 @@
+{
+  "name": "sampleserver",
+  "version": "1.0.0",
+  "description": "Express JS Server for Sample Apps project",
+  "main": "server.js",
+  "scripts": {
+    "client-install": "npm install --prefix sampleapps",
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "client": "npm start --prefix sampleapps",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix sampleapps && npm run build --prefix sampleapps",
+    "dev": "concurrently --kill-others \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MN7/react_js_sydney.git"
+  },
+  "author": "Narayan",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/MN7/react_js_sydney/issues"
+  },
+  "homepage": "https://github.com/MN7/react_js_sydney#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "concurrently": "^5.2.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}

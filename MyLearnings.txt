@@ -5,3 +5,19 @@ A. Creating git repo on github & use git-pull to get the files onto local
 B. Use create-react-app to create react app. Worked okay.
   1. "npm start" did not auto-refresh on changing files.
       Fixed by adding a .env file under the sampleapps folder with the env-var CHOKIDAR_USEPOLLING=true
+
+C. Setting up Express app.
+  1. Use npm init - and follow prompts. Use any past project's express package.json to determine dependencies. Use --save & --save-dev on npm install
+  2. Typically, npm start on express will not have any problems. BUT - npm run server (which is nodemon server.js) will fail.
+     Why? https://stackoverflow.com/questions/50965988/nodemon-internal-watch-failed-enospc-no-space-left-on-device-watch-home-u
+     TL;DR: Since express-app is created after client/react app, chances are nodemon on react already watches 1000's of files, folders.
+     So, when invoking nodemon for express, it says there is not enough space to watch further files, folders.
+     Easy solution: use sudo -s & get 'root'. Then, 'root' user executes npm run server & it will work.
+
+
+---
+
+References:
+
+Setting up Express Node JS back-end without any database -
+https://medium.com/@etiennerouzeaud/how-create-an-api-restfull-in-express-node-js-without-database-b030c687e2ea
