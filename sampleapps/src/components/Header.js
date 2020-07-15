@@ -7,7 +7,8 @@ export default function Header (props) {
   const appstate = props.hasOwnProperty("state") ? props.state : {};
   const showloginbtn = appstate.hasOwnProperty("showForm") &&
           !(["Account","Login","NewUser"].includes(appstate.showForm));
-  const logintext = appstate.hasOwnProperty("username") && appstate.username.length>0 ? appstate.username : "Log In / Sign Up";
+  const logintext = appstate.hasOwnProperty("userinfo") && appstate.userinfo.hasOwnProperty("username")
+                    && appstate.userinfo.username.length>0 ? appstate.userinfo.username : "Log In / Sign Up";
   const login = <input className="Login-btn" type="button"
     value={logintext}
     onClick={() => props.userLogin()}

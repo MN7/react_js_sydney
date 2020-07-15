@@ -11,8 +11,7 @@ const User = require ('../../models/User.js');
  */
 
 router.get('/', (req, res) => {
-  User.find()
-    .sort({date:-1})
+  User.getUsers()
     .then(users => res.json(users));
 });
 
@@ -39,20 +38,24 @@ router
  */
 
 router.post('/login', (req, res) => {
-  User.findOne({email: req.body.email})
+  console.log("reached login at server side"+JSON.stringify(req.body));
+  User.getUser(req.body.email)
     .then(foundOne => {
       if (!foundOne) res.status(400).json({success: false, message: "Email: "+req.body.email+" not registered."})
       else {
+        console.log("email found. id: "+foundOne.id);
+        if (req.body.email == "demouser@sampleapp.com") req.body.password=process.env.DEMO_USER_CRED;
         bcrypt.compare(req.body.password, foundOne.password)
         .then(matched => {
-          const token = jwt.sign({_id: foundOne._id}, process.env.TOKEN_SECRET);
-          matched ? res.status(200).header('auth-token', token).json({success: true, "username":foundOne.username})
+          const token = jwt.sign({_id: foundOne.id}, process.env.TOKEN_SECRET);
+          console.log("password matched. username: "+foundOne.username);
+          matched ? res.status(200).header('auth-token', token).json({success: true, "username":foundOne.username, "uid":foundOne.id, "email":foundOne.email})
                   : res.status(400).json({success: false, message: "Invalid Email or Password"})
         })
         .catch(err => res.status(400).json({success: false, message: "Hash failed "+err}))
       }
     })
-    .catch(err => res.status(400).json({success: false, message: "Find User failed "+err}))
+    .catch(err => res.status(400).json({success: false, message: "Get User failed "+err}))
     ;
 });
 
@@ -66,16 +69,14 @@ router.post('/register', (req, res) => {
     bcrypt.genSalt(10)
       .then(salt => bcrypt.hash(req.body.password, salt))
       .then(hashedPassword => {
-        const newUser = new User({
-          username: req.body.username, email: req.body.email, password: hashedPassword
-        });
+        const newUser = { username: req.body.username, email: req.body.email, password: hashedPassword};
         User
-          .findOne({email: newUser.email})
+          .getUser(newUser.email)
           .then(foundOne => {
             if (foundOne) res.status(400).json({success: false, message: "Email: "+newUser.email+" already registered."})
             else
-              newUser
-                .save()
+              User
+                .addUser(newUser)
                 .then(savedUser => {
                   const token = jwt.sign({_id: savedUser._id}, process.env.TOKEN_SECRET);
                   res.header('auth-token', token).json({success: true});
@@ -83,7 +84,7 @@ router.post('/register', (req, res) => {
                 .catch(err => res.status(404).json({success: false, message: "Save failed "+err}))
                 ;
           })
-          .catch(err => res.status(404).json({success: false, message: "Find User failed "+err}))
+          .catch(err => res.status(404).json({success: false, message: "Get User failed "+err}))
           ;
       })
       .catch(err => res.status(404).json({success: false, message: "Hash failed "+err}))

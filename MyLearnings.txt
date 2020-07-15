@@ -13,6 +13,18 @@ C. Setting up Express app.
      TL;DR: Since express-app is created after client/react app, chances are nodemon on react already watches 1000's of files, folders.
      So, when invoking nodemon for express, it says there is not enough space to watch further files, folders.
      Easy solution: use sudo -s & get 'root'. Then, 'root' user executes npm run server & it will work.
+  3. The above advice (on #2) only useful for server-side/back-end dev work. When we need to work on both front & back end,
+     - create a TERMINAL window
+     - navigate to the server-folder
+     - run the appropriate script (from package.json) to concurrently run f-e & b-e. Usually "npm run dev" is the script.
+  4. THIS IS AN IMPORTANT LEARNING: Use "e.preventDefault()"
+     - When coding this project, I was able to properly set-up the back-end and tested using PostMan.
+     - However, trying to replicate the same POST fetch API call from react-js failed (it was working on PostMan)
+     - Broke my head for almost 2 days - and it appeared to be an issue with CORS (cross origin resource sharing)
+     - On 13 Jul (8 pm), when testing the "console.log" display kept disappearing (and this was the case from 3-4 days back)
+     - Trying to figure out why the logs were disappearing on the react-js (but it was showing up on the server.js), I found this:
+     - "https://stackoverflow.com/questions/16874317/firebug-and-chrome-console-both-have-disappearing-console-log-messages"
+
 
 
 ---

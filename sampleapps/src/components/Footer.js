@@ -11,7 +11,7 @@ export default function Footer (props) {
       <marquee direction="left" width="60%" scrollamount="8">
         {ftrtxt}
         <br/>
-         React Version used on this page: {REACT_VERSION}
+         React Version used on this page: {REACT_VERSION} ---- {JSON.stringify(props.state)} ----
       </marquee>
     </sub>
   );
