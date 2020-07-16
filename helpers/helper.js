@@ -23,11 +23,36 @@ function mustBeInArray(array, id) {
     })
 }
 
-function checkEmailExists(array, email) {
+function checkUserOrEmailExists(array, inpVal) {
     return new Promise((resolve, reject) => {
-        const row = array.find(r => r.email == email)
-        if (!row) resolve();
-        resolve(row)
+        const rowEmail = array.find(r => r.email == inpVal);
+        const rowUser = array.find(r => r.username == inpVal);
+
+        if (rowEmail && !rowUser) resolve(rowEmail);
+        if (!rowEmail && rowUser) resolve(rowUser);
+
+        if (rowEmail && rowUser) {
+          console.log("WARNING: checkUserOrEmailExists() --> input-val matches both username: "+rowUser.username+" and email: "+rowEmail.email);
+          resolve(rowEmail);
+        }
+
+        if (!rowEmail && !rowUser) {
+          console.log("checkUserOrEmailExists() --> inpVal: "+inpVal+" match not found on email or username.");
+          resolve();
+        }
+    })
+}
+
+function validateRegistration(array, username, email) {
+    return new Promise((resolve, reject) => {
+        const rowEmail = array.find(r => r.email == email);
+        const rowUser = array.find(r => r.username == username);
+
+        if (!rowEmail && !rowUser) {
+          resolve();
+        } else {
+          !rowUser ? resolve(rowEmail) : resolve(rowUser);
+        }
     })
 }
 
@@ -43,6 +68,7 @@ module.exports = {
     getNewId,
     newDate,
     mustBeInArray,
-    checkEmailExists,
+    checkUserOrEmailExists,
+    validateRegistration,
     writeJSONFile
 }

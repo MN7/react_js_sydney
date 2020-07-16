@@ -18,8 +18,13 @@ export default class Main extends Component {
   }
 
   updateForm = newForm => {
-    const newarr = [...this.state.prevForms, newForm];
-    this.setState({prevForms: newarr, showForm: newForm});
+    if (newForm === "prev") {
+      const prevForm = this.state.prevForms.pop();
+      this.setState({showForm: prevForm});
+    } else {
+      const newarr = [...this.state.prevForms, newForm];
+      this.setState({prevForms: newarr, showForm: newForm});
+    }
   }
 
   userLogin = () => {
@@ -33,7 +38,7 @@ export default class Main extends Component {
   }
 
   doLogin = async (user) => {
-    this.setState({"loading": true})
+    this.setState({"loading": true});
     let tmptoken="";
     fetch( "./api/v1/user/login", {
           method: "POST", headers: { "Content-Type" : "application/json" },
@@ -51,7 +56,9 @@ export default class Main extends Component {
             console.log("User login successful. Result: "+JSON.stringify(json));
             this.updateForm("Main"); // on successful log-in display the Main/home page.
           } else {
-            this.setState({"userinfo": ""});
+            this.setState({"userinfo": {"error":[
+              {"err_username":json.message}, {"err_password":json.message}
+          ]}});
             console.log("User login failed with message: "+json.message);
           }
         })
@@ -60,6 +67,36 @@ export default class Main extends Component {
           this.setState({"userinfo": ""});
         })
         ;
+  }
+
+  doRegister = async (user) => {
+    this.setState({"loading":true});
+    let tmptoken="";
+    fetch("./api/v1/user/register", {
+      method: "POST", headers: { "Content-Type" : "application/json" },
+      body: JSON.stringify({"email": user.email, "password": user.password, "username": user.username, "confirmemail": false})
+    })
+    .then(res => {
+      this.setState({"loading": false});
+      tmptoken=res.headers.get('auth-token');
+      return res.json();
+    })
+    .then(json => {
+      if (json.success) {
+        const uinfo={"username":json.username, "email":json.email, "token":tmptoken, "uid":json.id}
+        this.setState({"userinfo": uinfo});
+        console.log("User registration successful. Result: "+JSON.stringify(json));
+        this.updateForm("Main"); // on successful log-in display the Main/home page.
+      } else {
+        this.setState({"userinfo": ""});
+        console.log("User registration failed with message: "+json.message);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      this.setState({"userinfo": ""});
+    })
+    ;
   }
 
   render() {
@@ -78,7 +115,10 @@ export default class Main extends Component {
         return(
           <form className="LoginForm">
             <Header txt={hdrtxt} styl="Form-header" state={this.state} userLogin={() => this.userLogin()}/>
-            <LoginAcct state={this.state} updateForm={nf=>this.updateForm(nf)} doLogin={u=>this.doLogin(u)} doLogout={()=>{this.setState({"userinfo": ""})}} />
+            <LoginAcct state={this.state} updateForm={nf=>this.updateForm(nf)}
+              doLogin={u=>this.doLogin(u)} doLogout={()=>{this.setState({"userinfo": ""})}}
+              doRegister={u=>this.doRegister(u)}
+              />
             <Footer txt="" styl="Main-footer" state={this.state}/>
           </form>
         );

@@ -15,9 +15,9 @@ function getUsers() {
     })
 }
 
-function getUser(email) {
+function getUser(inpVal, validateRegistration=false, inpUserName="") {
     return new Promise((resolve, reject) => {
-        helper.checkEmailExists(users, email)
+        (validateRegistration ? helper.validateRegistration(users, inpUserName, inpVal) : helper.checkUserOrEmailExists(users, inpVal))
         .then(user => resolve(user))
         .catch(err => reject(err))
     })

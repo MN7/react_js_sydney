@@ -22,12 +22,18 @@ export default class LoginAcct extends React.Component {
 
 // componentWillUnmount(){console.log("LogIn will unmount");}
   componentDidMount(){
-    console.log("LogIn has mounted with parent-state: "+JSON.stringify(this.props.state));
-    if (this.props.state.hasOwnProperty("userinfo")) {
-      if (this.props.state.userinfo.hasOwnProperty("username"))
-        {this.setState({"username": this.props.state.userinfo.username});}
-      if (this.props.state.userinfo.hasOwnProperty("email"))
-        {this.setState({"email": this.props.state.userinfo.email});}
+    const ps=this.props.state;
+    console.log("LogIn has mounted with parent-state: "+JSON.stringify(ps));
+    if (ps.hasOwnProperty("userinfo")) {
+      if (ps.userinfo.hasOwnProperty("username")) {this.setState({"username": ps.userinfo.username});}
+      if (ps.userinfo.hasOwnProperty("email")) {this.setState({"email": ps.userinfo.email});}
+      if (ps.userinfo.hasOwnProperty("error")) {
+        console.log("tango 1");
+        for (var i = 0; i < ps.userinfo.error.length; i++) {
+          this.setState({...ps.userinfo.error[i]});
+          console.log("tango 2 error array elt:"+JSON.stringify(ps.userinfo.error[i]));
+        }
+      }
     }
   }
 
@@ -40,10 +46,22 @@ export default class LoginAcct extends React.Component {
     this.setState({[e.target.name]: e.target.value});
   }
 
-  validate = (email,password, e) => {
+  validate = (email, password, e, register=false, username="") => {
     e.preventDefault();
     if (email.length>0 && password.length>0) {
-      this.props.doLogin({"email":email,"password":password});
+      if (register) this.props.doRegister({"username":username, "email":email, "password":password});
+      else this.props.doLogin({"email":email,"password":password});
+    } else {
+      this.setState({err_username: "Username or password blank or invalid",
+                     err_password: "Username or password blank or invalid"})
+    }
+  }
+
+  validateNewUser = (username, email, password, confirmp, e) => {
+    if (confirmp === password) this.validate(email, password, e, true, username);
+    else {
+      e.preventDefault();
+      this.setState({err_confirmp: "Confirm password does not match."});
     }
   }
 
@@ -66,7 +84,9 @@ export default class LoginAcct extends React.Component {
         </div>
         <div className="LIbuttons">
           <Button variant="contained" color="primary" endIcon={<Icon>done</Icon>} size="small"
-             type="submit" onClick={(e)=>this.validate(username, password,e)}>Login</Button>
+             type="submit" onClick={(e)=>this.validate(username, password,e)}>
+             Login
+           </Button>
            <Button variant="contained" color="default" endIcon={<Icon>cancel</Icon>} size="small"
             type="button" onClick={()=>updateForm("Main")} >Cancel</Button>
         </div>
@@ -92,16 +112,16 @@ export default class LoginAcct extends React.Component {
           name="email" required autoComplete="current-email" onChange={e => this.onChange(e)} />
       </div>
       <div className="LItext">
-        <TextField className="GenericInput" type="new-password" placeholder="Enter Password" value={password}
+        <TextField className="GenericInput" type="password" placeholder="Enter Password" value={password}
           helperText={err_password} error={err_password.length>0}
           name="password" required autoComplete="new-password" onChange={e => this.onChange(e)} />
-        <TextField className="GenericInput" type="new-password" placeholder="Confirm Password" value={confirmp}
+        <TextField className="GenericInput" type="password" placeholder="Confirm Password" value={confirmp}
           helperText={err_confirmp} error={err_confirmp.length>0}
           name="confirmp" required onChange={e => this.onChange(e)} />
       </div>
       <div className="LIbuttons">
         <Button variant="contained" color="primary" endIcon={<Icon>add</Icon>} size="small"
-          type="submit">
+          type="submit" onClick={(e)=>this.validateNewUser(username, email, password, confirmp, e)}>
           Create
         </Button>
         <Button variant="contained" color="secondary" endIcon={<Icon>cancel</Icon>} size="small"

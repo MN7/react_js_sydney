@@ -38,17 +38,16 @@ router
  */
 
 router.post('/login', (req, res) => {
-  console.log("reached login at server side"+JSON.stringify(req.body));
   User.getUser(req.body.email)
     .then(foundOne => {
       if (!foundOne) res.status(400).json({success: false, message: "Email: "+req.body.email+" not registered."})
       else {
         console.log("email found. id: "+foundOne.id);
-        if (req.body.email == "demouser@sampleapp.com") req.body.password=process.env.DEMO_USER_CRED;
+        if (foundOne.email == "demouser@sampleapp.com") req.body.password=process.env.DEMO_USER_CRED;
         bcrypt.compare(req.body.password, foundOne.password)
         .then(matched => {
           const token = jwt.sign({_id: foundOne.id}, process.env.TOKEN_SECRET);
-          console.log("password matched. username: "+foundOne.username);
+          console.log("password matched: "+matched+" username: "+foundOne.username);
           matched ? res.status(200).header('auth-token', token).json({success: true, "username":foundOne.username, "uid":foundOne.id, "email":foundOne.email})
                   : res.status(400).json({success: false, message: "Invalid Email or Password"})
         })
@@ -69,17 +68,21 @@ router.post('/register', (req, res) => {
     bcrypt.genSalt(10)
       .then(salt => bcrypt.hash(req.body.password, salt))
       .then(hashedPassword => {
-        const newUser = { username: req.body.username, email: req.body.email, password: hashedPassword};
+        const newUser = { username: req.body.username, email: req.body.email, password: hashedPassword, confirmemail: req.body.confirmemail };
         User
-          .getUser(newUser.email)
+          .getUser(newUser.email, true, newUser.username)
           .then(foundOne => {
-            if (foundOne) res.status(400).json({success: false, message: "Email: "+newUser.email+" already registered."})
+            if (foundOne) {
+              let msg = foundOne.email === newUser.email ? "Email "+foundOne.email : "User "+foundOne.username;
+              msg+=" already registered.";
+              res.status(400).json({success: false, message: msg})
+            }
             else
               User
                 .addUser(newUser)
                 .then(savedUser => {
                   const token = jwt.sign({_id: savedUser._id}, process.env.TOKEN_SECRET);
-                  res.header('auth-token', token).json({success: true});
+                  res.status(200).header('auth-token', token).json({success: true, "username":savedUser.username, "uid":savedUser.id, "email":savedUser.email});
                 })
                 .catch(err => res.status(404).json({success: false, message: "Save failed "+err}))
                 ;
