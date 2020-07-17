@@ -56,15 +56,13 @@ export default class Main extends Component {
             console.log("User login successful. Result: "+JSON.stringify(json));
             this.updateForm("Main"); // on successful log-in display the Main/home page.
           } else {
-            this.setState({"userinfo": {"error":[
-              {"err_username":json.message}, {"err_password":json.message}
-          ]}});
+            user.handleError([{elt:"err_username",msg:json.message},{elt:"err_password",msg:json.message}]);
             console.log("User login failed with message: "+json.message);
           }
         })
         .catch(err => {
+          user.handleError([{elt:"err_username",msg:err},{elt:"err_password",msg:err}]);
           console.log(err);
-          this.setState({"userinfo": ""});
         })
         ;
   }
@@ -88,13 +86,13 @@ export default class Main extends Component {
         console.log("User registration successful. Result: "+JSON.stringify(json));
         this.updateForm("Main"); // on successful log-in display the Main/home page.
       } else {
-        this.setState({"userinfo": ""});
+        user.handleError([{elt: json.message.startsWith("User")?"err_username":"err_email",msg:json.message}]);
         console.log("User registration failed with message: "+json.message);
       }
     })
     .catch(err => {
+      user.handleError([{elt:"err_username",msg:err},{elt:"err_email",msg:err}]);
       console.log(err);
-      this.setState({"userinfo": ""});
     })
     ;
   }

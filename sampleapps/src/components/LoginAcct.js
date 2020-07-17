@@ -27,19 +27,27 @@ export default class LoginAcct extends React.Component {
     if (ps.hasOwnProperty("userinfo")) {
       if (ps.userinfo.hasOwnProperty("username")) {this.setState({"username": ps.userinfo.username});}
       if (ps.userinfo.hasOwnProperty("email")) {this.setState({"email": ps.userinfo.email});}
-      if (ps.userinfo.hasOwnProperty("error")) {
-        console.log("tango 1");
-        for (var i = 0; i < ps.userinfo.error.length; i++) {
-          this.setState({...ps.userinfo.error[i]});
-          console.log("tango 2 error array elt:"+JSON.stringify(ps.userinfo.error[i]));
-        }
-      }
     }
+  }
+
+  handleError = (objArr) => {
+    let ns ={};
+    let nr = objArr.map((o) => {return ns[o.elt]=o.msg});
+    console.log("ns: "+JSON.stringify(ns)+" typeof ns: "+typeof(ns)+" nr: "+nr);
+    this.setState(ns);
+
+    // for (let i = 0; i < objArr.length; i++) {
+    //   this.setState({[objArr[i].elt]:objArr[i].msg});
+    // }
   }
 
   clearState = () => {
     this.setState({ username: "", email: "", password: "", confirmp: "",
       err_username: "", err_email: "", err_password: "", err_confirmp: "", token: ""})
+  }
+
+  clearError = () => {
+    this.setState({ err_username: "", err_email: "", err_password: "", err_confirmp: "", token: ""});
   }
 
   onChange = (e) => {
@@ -48,9 +56,10 @@ export default class LoginAcct extends React.Component {
 
   validate = (email, password, e, register=false, username="") => {
     e.preventDefault();
+    this.clearError();
     if (email.length>0 && password.length>0) {
-      if (register) this.props.doRegister({"username":username, "email":email, "password":password});
-      else this.props.doLogin({"email":email,"password":password});
+      if (register) this.props.doRegister({"username":username, "email":email, "password":password,"handleError":(o)=>this.handleError(o)});
+      else this.props.doLogin({"email":email,"password":password,"handleError":(o)=>this.handleError(o)});
     } else {
       this.setState({err_username: "Username or password blank or invalid",
                      err_password: "Username or password blank or invalid"})
@@ -61,6 +70,7 @@ export default class LoginAcct extends React.Component {
     if (confirmp === password) this.validate(email, password, e, true, username);
     else {
       e.preventDefault();
+      this.clearError();
       this.setState({err_confirmp: "Confirm password does not match."});
     }
   }
