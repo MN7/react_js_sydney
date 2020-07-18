@@ -1,3 +1,5 @@
+NOTE: This file will not be saved on github. So, ensure to manually save it.
+
 Day 0 (12 Jun 2020)
 
 A. Creating git repo on github & use git-pull to get the files onto local
