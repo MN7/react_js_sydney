@@ -15,13 +15,28 @@ function getUsers() {
     })
 }
 
-function getUser(inpVal, validateRegistration=false, inpUserName="") {
+function getUser(callerType, inpEmail, inpUserName="") {
     return new Promise((resolve, reject) => {
-        (validateRegistration ? helper.validateRegistration(users, inpUserName, inpVal) : helper.checkUserOrEmailExists(users, inpVal))
-        .then(user => resolve(user))
-        .catch(err => reject(err))
+        switch(callerType){
+          case "Login":
+            helper.checkUserOrEmailExists(users, inpEmail, inpEmail)
+            .then(user => resolve(user)).catch(err => reject(err));
+            break;
+          case "Register":
+            helper.checkUserOrEmailExists(users, inpUserName, inpEmail)
+            .then(user => resolve(user)).catch(err => reject(err));
+            break;
+          case "Update":
+            helper.getUserAndEmail(users, inpUserName, inpEmail)
+            .then(users => resolve(users)).catch(err => reject(err));
+        }
     })
 }
+
+// (callerType=="Login" ? helper.checkUserOrEmailExists(users, inpEmail, inpEmail)
+//                      : callerType=="Register" ? helper.checkUserOrEmailExists(users, inpUserName, inpEmail)
+//                      : helper.checkNoUserButEmailExists(users, inpUserName, inpEmail))
+
 
 function addUser(newUser) {
     return new Promise((resolve, reject) => {
@@ -42,7 +57,7 @@ function updateUser(id, newUser) {
         helper.mustBeInArray(users, id)
         .then(user => {
             const index = users.findIndex(u => u.id == user.id)
-            id = { id: user.id }
+            id = { id: user.id, confirmemail: user.confirmemail }
             const date = {
                 createdAt: user.createdAt,
                 updatedAt: helper.newDate()

@@ -33,3 +33,12 @@ References:
 
 Setting up Express Node JS back-end without any database -
 https://medium.com/@etiennerouzeaud/how-create-an-api-restfull-in-express-node-js-without-database-b030c687e2ea
+
+Google reCAPTCHA v3 info:
+https://www.google.com/recaptcha/admin/site/431127251/setup
+
+site key: [Use this site key in the HTML code your site serves to users : https://developers.google.com/recaptcha/docs/v3]
+6LfTerIZAAAAAAD7tOKyAAJkNuxWgwFMreGZ12oF
+
+secret key: [Use this secret key for communication between your site and reCAPTCHA. : https://developers.google.com/recaptcha/docs/verify]
+6LfTerIZAAAAAAb5A4SmkYs9SnbxHCjmoGGzJg-o

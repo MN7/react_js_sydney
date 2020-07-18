@@ -16,6 +16,7 @@ export default class LoginAcct extends React.Component {
       err_email: "",
       err_password: "",
       err_confirmp: "",
+      alertMessage: "",
       token: ""
     }
   }
@@ -41,6 +42,17 @@ export default class LoginAcct extends React.Component {
     // }
   }
 
+  handleAlert = (msg) => {
+    this.setState({"alertMessage":msg});
+    setTimeout(()=>this.setState({"alertMessage":""}), 2500);
+  }
+
+  // {
+  //   let updState = this.state;
+  //   delete updState.alertMessage;
+  //   this.setState(updState);
+  // }
+
   clearState = () => {
     this.setState({ username: "", email: "", password: "", confirmp: "",
       err_username: "", err_email: "", err_password: "", err_confirmp: "", token: ""})
@@ -54,12 +66,11 @@ export default class LoginAcct extends React.Component {
     this.setState({[e.target.name]: e.target.value});
   }
 
-  validate = (email, password, e, register=false, username="") => {
+  validate = (email, password, e) => {
     e.preventDefault();
     this.clearError();
     if (email.length>0 && password.length>0) {
-      if (register) this.props.doRegister({"username":username, "email":email, "password":password,"handleError":(o)=>this.handleError(o)});
-      else this.props.doLogin({"email":email,"password":password,"handleError":(o)=>this.handleError(o)});
+      this.props.doLogin({"email":email,"password":password,"handleError":(o)=>this.handleError(o)});
     } else {
       this.setState({err_username: "Username or password blank or invalid",
                      err_password: "Username or password blank or invalid"})
@@ -67,10 +78,34 @@ export default class LoginAcct extends React.Component {
   }
 
   validateNewUser = (username, email, password, confirmp, e) => {
-    if (confirmp === password) this.validate(email, password, e, true, username);
-    else {
-      e.preventDefault();
-      this.clearError();
+    e.preventDefault();
+    this.clearError();
+    if (confirmp === password && password.length>0) {
+      if (email.length>0 && username.length>0) {
+        // do further validation of email. Enforce user-name restrictions. Enforce minimum password complexities here.
+        this.props.doRegister({"username":username, "email":email, "password":password,"handleError":(o)=>this.handleError(o)});
+      } else {
+        username.length?this.setState({err_email: "Email blank or invalid"})
+                    :this.setState({err_username: "Username blank or invalid"})
+      }
+    } else {
+      this.setState({err_confirmp: "Confirm password does not match."});
+    }
+  }
+
+  validateUpdateUser = (username, email, password, confirmp, e) => {
+    e.preventDefault();
+    this.clearError();
+    if (confirmp === password) {
+      if (email.length>0 && username.length>0) {
+        // do further validation of email. Enforce user-name restrictions. Enforce minimum password complexities here.
+        this.props.doUpdateUser({"username":username, "email":email, "password":password,
+                  "handleError":(o)=>this.handleError(o), "handleAlert":(msg)=>this.handleAlert(msg)});
+      } else {
+        username.length?this.setState({err_email: "Email blank or invalid"})
+                      :this.setState({err_username: "Username blank or invalid"})
+      }
+    } else {
       this.setState({err_confirmp: "Confirm password does not match."});
     }
   }
@@ -140,6 +175,9 @@ export default class LoginAcct extends React.Component {
     </div>
     ;
 
+    const alertMessage = this.state.alertMessage.length?
+          <div className="alertMessage"><p>{this.state.alertMessage}</p></div>
+          :"" ;
     const showUserInfo =
     <div className="LoginInfo">
       <div className="LItext">
@@ -153,10 +191,13 @@ export default class LoginAcct extends React.Component {
         <TextField className="GenericInput" type="password" placeholder="If New Password, re-enter" value={confirmp}
           helperText={err_confirmp} error={err_confirmp.length>0}
           name="confirmp" required autoComplete="new-password" onChange={e => this.onChange(e)} />
+        {alertMessage}
       </div>
       <div className="LIbuttons">
         <Button variant="contained" color="primary" endIcon={<SaveIcon />} size="small"
-          type="submit">Save Changes</Button>
+          type="submit" onClick={(e)=>this.validateUpdateUser(username, email, password, confirmp, e)}>
+          Save Changes
+        </Button>
         <Button variant="contained" color="default" endIcon={<Icon>cancel</Icon>} size="small"
           type="button" onClick={()=>updateForm("Main")} >Cancel</Button>
         <Button variant="contained" color="secondary" endIcon={<Icon>cancel</Icon>} size="small"

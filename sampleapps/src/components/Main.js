@@ -97,6 +97,36 @@ export default class Main extends Component {
     ;
   }
 
+  doUpdateUser = async (user) => {
+    this.setState({"loading":true});
+    let tmptoken="";
+    fetch("./api/v1/user/update", {
+      method: "POST", headers: { "Content-Type" : "application/json" },
+      body: JSON.stringify({"email": user.email, "password": user.password, "username": user.username})
+    })
+    .then(res => {
+      this.setState({"loading": false});
+      tmptoken=res.headers.get('auth-token');
+      return res.json();
+    })
+    .then(json => {
+      if (json.success) {
+        const uinfo={"username":json.username, "email":json.email, "token":tmptoken, "uid":json.id}
+        this.setState({"userinfo": uinfo});
+        console.log("User update successful. Result: "+JSON.stringify(json));
+        user.handleAlert("User information has been updated!");
+      } else {
+        user.handleError([{elt: json.message.startsWith("User")?"err_username":"err_email",msg:json.message}]);
+        console.log("User update failed with message: "+json.message);
+      }
+    })
+    .catch(err => {
+      user.handleError([{elt:"err_username",msg:err},{elt:"err_email",msg:err}]);
+      console.log(err);
+    })
+    ;
+  }
+
   render() {
       switch (this.state.showForm) {
         case "Main": return(
@@ -115,7 +145,7 @@ export default class Main extends Component {
             <Header txt={hdrtxt} styl="Form-header" state={this.state} userLogin={() => this.userLogin()}/>
             <LoginAcct state={this.state} updateForm={nf=>this.updateForm(nf)}
               doLogin={u=>this.doLogin(u)} doLogout={()=>{this.setState({"userinfo": ""})}}
-              doRegister={u=>this.doRegister(u)}
+              doRegister={u=>this.doRegister(u)} doUpdateUser={u=>this.doUpdateUser(u)}
               />
             <Footer txt="" styl="Main-footer" state={this.state}/>
           </form>
