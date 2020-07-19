@@ -3,6 +3,7 @@ import { Button, TextField } from '@material-ui/core'
 import Icon from '@material-ui/core/Icon';
 import SaveIcon from '@material-ui/icons/Save';
 
+let my_RECAPTCHA_SITE_KEY="";
 
 export default class LoginAcct extends React.Component {
   constructor(props) {
@@ -17,6 +18,7 @@ export default class LoginAcct extends React.Component {
       err_password: "",
       err_confirmp: "",
       alertMessage: "",
+      recaptchaDone: false,
       token: ""
     }
   }
@@ -24,17 +26,32 @@ export default class LoginAcct extends React.Component {
 // componentWillUnmount(){console.log("LogIn will unmount");}
   componentDidMount(){
     const ps=this.props.state;
+    my_RECAPTCHA_SITE_KEY=ps.grecapkey;
     console.log("LogIn has mounted with parent-state: "+JSON.stringify(ps));
     if (ps.hasOwnProperty("userinfo")) {
       if (ps.userinfo.hasOwnProperty("username")) {this.setState({"username": ps.userinfo.username});}
       if (ps.userinfo.hasOwnProperty("email")) {this.setState({"email": ps.userinfo.email});}
+    }
+
+    const notLoaded = document.getElementById("grecaptcha001") == null;
+    console.log("state.recaptchaDone: "+this.state.recaptchaDone+" notLoaded: "+notLoaded);
+
+    if (!this.setState.recaptchaDone && notLoaded) {
+      const script = document.createElement("script");
+      const gr_url="https://www.google.com/recaptcha/api.js?render="+my_RECAPTCHA_SITE_KEY;
+      // const gr_url="https://www.google.com/recaptcha/api.js";
+      script.async = true;
+      script.defer = true;
+      script.src = gr_url;
+      script.id="grecaptcha001";
+      document.body.appendChild(script);
     }
   }
 
   handleError = (objArr) => {
     let ns ={};
     let nr = objArr.map((o) => {return ns[o.elt]=o.msg});
-    console.log("ns: "+JSON.stringify(ns)+" typeof ns: "+typeof(ns)+" nr: "+nr);
+    if (nr) nr=null; // to avoid "warning" that nr is not used.
     this.setState(ns);
 
     // for (let i = 0; i < objArr.length; i++) {
@@ -47,14 +64,8 @@ export default class LoginAcct extends React.Component {
     setTimeout(()=>this.setState({"alertMessage":""}), 2500);
   }
 
-  // {
-  //   let updState = this.state;
-  //   delete updState.alertMessage;
-  //   this.setState(updState);
-  // }
-
   clearState = () => {
-    this.setState({ username: "", email: "", password: "", confirmp: "",
+    this.setState({ username: "", email: "", password: "", confirmp: "", alertMessage: "", recaptchaDone: false,
       err_username: "", err_email: "", err_password: "", err_confirmp: "", token: ""})
   }
 
@@ -69,8 +80,21 @@ export default class LoginAcct extends React.Component {
   validate = (email, password, e) => {
     e.preventDefault();
     this.clearError();
+    const onSuccess = (token) => {
+      if (token) {
+        this.setState({"recaptchaDone":true});
+        this.props.doLogin({"email":email,"password":password,"handleError":(o)=>this.handleError(o),"captchaToken":token});
+      }
+    }
     if (email.length>0 && password.length>0) {
-      this.props.doLogin({"email":email,"password":password,"handleError":(o)=>this.handleError(o)});
+      // this.props.doLogin({"email":email,"password":password,"handleError":(o)=>this.handleError(o)});
+      window.grecaptcha.ready(function() {
+        window.grecaptcha.execute(my_RECAPTCHA_SITE_KEY, {action: 'submit'})
+        .then(function(token) {
+            // Add your logic to submit to your backend server here.
+            onSuccess(token);
+        }, onSuccess);
+      }, onSuccess);
     } else {
       this.setState({err_username: "Username or password blank or invalid",
                      err_password: "Username or password blank or invalid"})
@@ -114,6 +138,7 @@ export default class LoginAcct extends React.Component {
 
     let {username, email, password, confirmp} = this.state;
     const {err_username, err_email, err_password, err_confirmp} = this.state;
+    my_RECAPTCHA_SITE_KEY =  "6LdsAbMZAAAAAEr8d6HAYwzISGfLFRUDnXRDdlk2";
     const updateForm = this.props.updateForm;
     const doLogout = this.props.doLogout;
 
@@ -128,7 +153,8 @@ export default class LoginAcct extends React.Component {
             name="password" required autoComplete="current-password" onChange={e => this.onChange(e)} />
         </div>
         <div className="LIbuttons">
-          <Button variant="contained" color="primary" endIcon={<Icon>done</Icon>} size="small"
+          <Button
+             variant="contained" color="primary" endIcon={<Icon>done</Icon>} size="small"
              type="submit" onClick={(e)=>this.validate(username, password,e)}>
              Login
            </Button>
@@ -177,7 +203,7 @@ export default class LoginAcct extends React.Component {
 
     const alertMessage = this.state.alertMessage.length?
           <div className="alertMessage"><p>{this.state.alertMessage}</p></div>
-          :"" ;
+          :null ;
     const showUserInfo =
     <div className="LoginInfo">
       <div className="LItext">

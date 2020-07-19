@@ -42,8 +42,8 @@ router.post('/login', (req, res) => {
     .then(foundOne => {
       if (!foundOne) res.status(404).json({success: false, message: "Invalid Email or Password"})
       else {
-        console.log("email found. id: "+foundOne.id);
-        if (foundOne.email == process.env.DEMO_USER_EMAIL) req.body.password=process.env.DEMO_USER_CRED;
+        console.log("email found. id: "+foundOne.id+" username: "+foundOne.username+" email: "+foundOne.email);
+        if (foundOne.email == process.env.DEMO_USER_EMAIL) {req.body.password=process.env.DEMO_USER_CRED; console.log("set pwd to:"+process.env.DEMO_USER_CRED);}
         bcrypt.compare(req.body.password, foundOne.password)
         .then(matched => {
           const token = jwt.sign({_id: foundOne.id}, process.env.TOKEN_SECRET);
@@ -101,7 +101,7 @@ router.post('/register', (req, res) => {
 
 router.post('/update', (req, res) => {
   req.body.email == process.env.DEMO_USER_EMAIL
-  ? res.status(401).json({success: false, message: "Unauthorised to update Demo User credential."})
+  ? res.status(401).json({success: false, message: "Unauthorised to update Demo User profile."})
   : bcrypt.genSalt(10)
       .then(salt => bcrypt.hash(req.body.password, salt))
       .then(hashedPassword => {
@@ -130,8 +130,5 @@ router.post('/update', (req, res) => {
       })
       .catch(err => res.status(404).json({success: false, message: "Hash failed "+err}))
 });
-
-
-
 
 module.exports = router;

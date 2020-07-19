@@ -13,8 +13,14 @@ export default class Main extends Component {
     this.state = {
       showForm: "Main",
       prevForms: [],
+      grecapkey: "",
       loading: false
     };
+  }
+
+  // componentWillUnmount() { console.log("will unmount Main.js");}
+  componentDidMount() {
+    if (!this.state.grecapkey.length) this.setClientEnv(null);
   }
 
   updateForm = newForm => {
@@ -37,33 +43,80 @@ export default class Main extends Component {
     this.updateForm(newForm);
   }
 
+  setClientEnv = async (clientEnv) => {
+    this.setState({"loading": true});
+    fetch("./api/v1/others/getenv", { method: "GET" })
+      .then(res => {this.setState({"loading":false}); return res.json();})
+      .then(json => {if (json.success) this.setState({"grecapkey":json.sitekey})})
+      .catch((err) => {console.log("google-recaptcha site-key not fetched. error: "+err)})
+  }
+
   doLogin = async (user) => {
     this.setState({"loading": true});
     let tmptoken="";
-    fetch( "./api/v1/user/login", {
-          method: "POST", headers: { "Content-Type" : "application/json" },
-          body: JSON.stringify({"email": user.email, "password": user.password})
-        })
-        .then(res => {
-          this.setState({"loading": false});
-          tmptoken=res.headers.get('auth-token');
-          return res.json();
-        })
-        .then(json => {
-          if (json.success) {
-            const uinfo={"username":json.username, "email":json.email, "token":tmptoken, "uid":json.id}
-            this.setState({"userinfo": uinfo});
-            console.log("User login successful. Result: "+JSON.stringify(json));
-            this.updateForm("Main"); // on successful log-in display the Main/home page.
-          } else {
-            user.handleError([{elt:"err_username",msg:json.message},{elt:"err_password",msg:json.message}]);
-            console.log("User login failed with message: "+json.message);
-          }
-        })
-        .catch(err => {
-          user.handleError([{elt:"err_username",msg:err},{elt:"err_password",msg:err}]);
-          console.log(err);
-        })
+    fetch("./api/v1/others/grecap", {
+      method: "POST", headers: { "Content-Type" : "application/json" },
+      body: JSON.stringify({"captchaToken":user.captchaToken})})
+      .then(res => res.json())
+      .then(json => {
+        if (json.success) {
+          fetch( "./api/v1/user/login", {
+                method: "POST", headers: { "Content-Type" : "application/json" },
+                body: JSON.stringify({"email": user.email, "password": user.password})
+              })
+              .then(res => {
+                this.setState({"loading": false});
+                tmptoken=res.headers.get('auth-token');
+                return res.json();
+              })
+              .then(json => {
+                if (json.success) {
+                  const uinfo={"username":json.username, "email":json.email, "token":tmptoken, "uid":json.id}
+                  this.setState({"userinfo": uinfo});
+                  console.log("User login successful. Result: "+JSON.stringify(json));
+                  this.updateForm("Main"); // on successful log-in display the Main/home page.
+                } else {
+                  user.handleError([{elt:"err_username",msg:json.message},{elt:"err_password",msg:json.message}]);
+                  console.log("User login failed with message: "+json.message);
+                }
+              })
+              .catch(err => {
+                user.handleError([{elt:"err_username",msg:err},{elt:"err_password",msg:err}]);
+                console.log(err);
+              })
+        } else {
+          user.handleError([{elt:"err_username",msg:"reCaptcha Failed with "+json.message}]);
+          console.log("captcha NOT successful. Err: "+json.message);
+        }
+      })
+      .catch(err => {
+        user.handleError([{elt:"err_username",msg:"reCaptcha Failed with "+err}]);
+        console.log("captcha NOT successful. Err: "+err);
+      })
+    // fetch( "./api/v1/user/login", {
+    //       method: "POST", headers: { "Content-Type" : "application/json" },
+    //       body: JSON.stringify({"email": user.email, "password": user.password})
+    //     })
+    //     .then(res => {
+    //       this.setState({"loading": false});
+    //       tmptoken=res.headers.get('auth-token');
+    //       return res.json();
+    //     })
+    //     .then(json => {
+    //       if (json.success) {
+    //         const uinfo={"username":json.username, "email":json.email, "token":tmptoken, "uid":json.id}
+    //         this.setState({"userinfo": uinfo});
+    //         console.log("User login successful. Result: "+JSON.stringify(json));
+    //         this.updateForm("Main"); // on successful log-in display the Main/home page.
+    //       } else {
+    //         user.handleError([{elt:"err_username",msg:json.message},{elt:"err_password",msg:json.message}]);
+    //         console.log("User login failed with message: "+json.message);
+    //       }
+    //     })
+    //     .catch(err => {
+    //       user.handleError([{elt:"err_username",msg:err},{elt:"err_password",msg:err}]);
+    //       console.log(err);
+    //     })
         ;
   }
 
@@ -116,7 +169,7 @@ export default class Main extends Component {
         console.log("User update successful. Result: "+JSON.stringify(json));
         user.handleAlert("User information has been updated!");
       } else {
-        user.handleError([{elt: json.message.startsWith("User")?"err_username":"err_email",msg:json.message}]);
+        user.handleError([{elt: json.message.startsWith("Email")?"err_email":"err_username",msg:json.message}]);
         console.log("User update failed with message: "+json.message);
       }
     })
