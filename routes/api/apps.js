@@ -1,7 +1,7 @@
 const express=require("express");
 const router=express.Router();
 const https = require("https");
-const spell = require('spell-checker-js')
+
 
 /**
  * @route  GET inputword
@@ -21,12 +21,21 @@ const spell = require('spell-checker-js')
 
 function dictCheck(wl) {
   return new Promise((resolve, reject) => {
-    const res = new Set();
-    spell.load('en')
+    const res = new Set(), chk = new Set();
+    var Typo = require("typo-js");
+    var dictionary = new Typo("en_US");
+    // "en_US", false, false, { dictionaryPath: "typo/dictionaries" }
     if (wl==undefined) reject("WordList undefined")
-    wl.map((v)=>{ if (!res.has(v)) res.add(v); })
-    spell.check(wl.join(" ")).map((v) => {res.delete(v);})
-    resolve({"wl":wl,"dl":Array.from(res)})
+    // For each word in wl, determine smaller-words using slice. Loop from 3 to word-length (3,4,5...word-length)
+    wl.map((v)=>{
+      res.add(v);
+      if (dictionary.check(v)) { chk.add(v) }
+      [...Array(v.length-2).keys()].slice(1).map((idx) => {
+        res.add(v.slice(idx));
+        if (dictionary.check(v.slice(idx))) { chk.add(v.slice(idx))}
+      })
+    })
+    resolve({"wl":Array.from(res),"dl":Array.from(chk)})
   })
 }
 

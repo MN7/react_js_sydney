@@ -23,9 +23,9 @@ export default class WGMain extends React.Component {
   handleSuccess = (wordsList, dictList) => {
     console.log("wl: "+wordsList+" dl: "+dictList);
     let csv="", csvDL="";
-    wordsList.map((v)=>csv+=v+", ");
+    wordsList.map((v)=>csv+=v.toUpperCase()+", ");
     csv=csv.slice(0,-2); // drop the last comma+space from csv
-    dictList.map((v)=>csvDL+=v+", ");
+    dictList.map((v)=>csvDL+=v.toUpperCase()+", ");
     csvDL=csvDL.slice(0,-2);
     this.setState({wordsList: wordsList, csvWL: csv, dictList: dictList, csvDL: csvDL});
   }
@@ -38,7 +38,11 @@ export default class WGMain extends React.Component {
     }
   }
 
-  onChange = (e) => { this.setState({inputword: e.target.value, err_inputword: ""});}
+  onChangeInpText = (e) => {
+    const inp=e.target.value;
+    if (!/[^a-z]/i.test(inp)) {this.setState({inputword: inp.toUpperCase(), err_inputword: ""})}
+    else {this.setState({inputword: inp, err_inputword: "Only alphabetical characters permitted"})}
+  }
   onMenuChange = (e) => {}
 
   render() {
@@ -56,7 +60,7 @@ export default class WGMain extends React.Component {
             <Tooltip title="Enter the input letters to generate possible words" placement="top-start">
               <TextField className="GenericInput" type="text" placeholder="Enter letters" value={inputword}
                 helperText="" error={err_inputword.length>0}
-                name="inputword" autoComplete="off" onChange={e => this.onChange(e)} />
+                name="inputword" autoComplete="off" onChange={e => this.onChangeInpText(e)} />
             </Tooltip>
           </Grid>
           <Grid item xs={3}>
@@ -66,8 +70,8 @@ export default class WGMain extends React.Component {
         </Grid>
         {(csvWL.length > 0) ?
           <Grid className="PadTop" container direction="row" spacing={2}>
-            <Grid item xs={6}> <TextField variant="outlined" margin="dense" fullWidth={true} value={csvWL}
-                          multiline label="All Raw Combinations"/>
+            <Grid item xs={6}> <TextField className="WordSpace" variant="outlined" margin="dense" fullWidth={true} value={csvDL}
+                          multiline label="Dictionary Words"/>
             </Grid>
             <Grid item xs={3}>
               <InputLabel>Length</InputLabel>
@@ -78,8 +82,8 @@ export default class WGMain extends React.Component {
                 )}
               </Select>
             </Grid>
-            <Grid item xs={6}> <TextField variant="outlined" margin="dense" fullWidth={true} value={csvDL}
-                          multiline label="Dictionary Words"/>
+            <Grid item xs={6}> <TextField variant="outlined" margin="dense" fullWidth={true} value={csvWL}
+                          multiline label="All Raw Combinations"/>
             </Grid>
             <Grid item xs={3}>
               <InputLabel>Length</InputLabel>
