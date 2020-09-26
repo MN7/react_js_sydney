@@ -29,7 +29,7 @@ router.post('/grecap', (req, res1) => {
       });
       res.on("end", () => {
         outdata.body = JSON.parse(outdata.body);
-        console.log("api/others.js: google recaptcha result: "+outdata.body);
+        console.log("api/others.js: google recaptcha result: "+JSON.stringify(outdata.body));
         if (outdata.body.success) res1.status(200).json(outdata.body);
         else res1.status(401).json({success: false, message: outdata.body["error-codes"]});
       })

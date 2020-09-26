@@ -15,6 +15,10 @@
   text-align: center;
 }
 
+.HideElement {
+  display: none;
+}
+
 .Login-header {
   float: right;
 }
@@ -114,3 +118,11 @@
   opacity: 0.6;
   color: #e44
 }
+
+.AppsListSection {
+  padding-left: 2%
+}
+
+.PadAll { padding: 2% }
+.PadTop { padding-top: 2% }
+.PadLeft { padding-left: 2% }

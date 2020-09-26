@@ -26,7 +26,8 @@ C. Setting up Express app.
      - On 13 Jul (8 pm), when testing the "console.log" display kept disappearing (and this was the case from 3-4 days back)
      - Trying to figure out why the logs were disappearing on the react-js (but it was showing up on the server.js), I found this:
      - "https://stackoverflow.com/questions/16874317/firebug-and-chrome-console-both-have-disappearing-console-log-messages"
-
+  4a. CORS issue with Pro-sentient coding exercise
+    - https://stackoverflow.com/questions/43262121/trying-to-use-fetch-and-pass-in-mode-no-cors
 
 
 ---
@@ -38,9 +39,5 @@ https://medium.com/@etiennerouzeaud/how-create-an-api-restfull-in-express-node-j
 
 Google reCAPTCHA v3 info:
 https://www.google.com/recaptcha/admin/site/431127251/setup
-
 site key: [Use this site key in the HTML code your site serves to users : https://developers.google.com/recaptcha/docs/v3]
-6LdsAbMZAAAAAEr8d6HAYwzISGfLFRUDnXRDdlk2
-
 secret key: [Use this secret key for communication between your site and reCAPTCHA. : https://developers.google.com/recaptcha/docs/verify]
-6LdsAbMZAAAAAGtLuJXB-sa6yXCApG_HPj9F_46R

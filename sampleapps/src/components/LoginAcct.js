@@ -138,7 +138,6 @@ export default class LoginAcct extends React.Component {
 
     let {username, email, password, confirmp} = this.state;
     const {err_username, err_email, err_password, err_confirmp} = this.state;
-    my_RECAPTCHA_SITE_KEY =  "6LdsAbMZAAAAAEr8d6HAYwzISGfLFRUDnXRDdlk2";
     const updateForm = this.props.updateForm;
     const doLogout = this.props.doLogout;
 
@@ -175,12 +174,14 @@ export default class LoginAcct extends React.Component {
     const showNewUser =
     <div className="LoginInfo">
       <div className="LItext">
-        <TextField className="GenericInput" type="text" placeholder="Enter Username" value={username}
+        <TextField className="GenericInput" type="username" placeholder="Enter Username" value={username}
           helperText={err_username} error={err_username.length>0}
           name="username" required autoComplete="current-username" onChange={e => this.onChange(e)} />
-        <TextField className="GenericInput" type="text" placeholder="Enter Email to verify" value={email}
+        <TextField className="GenericInput" type="email" placeholder="Enter Email to verify" value={email}
           helperText={err_email} error={err_email.length>0}
           name="email" required autoComplete="current-email" onChange={e => this.onChange(e)} />
+        <input className="HideElement" type="text" name="username" autoComplete="current-username" />
+         {/* Above input element is used to prevent Chrome warning on "username" */}
       </div>
       <div className="LItext">
         <TextField className="GenericInput" type="password" placeholder="Enter Password" value={password}
@@ -188,7 +189,7 @@ export default class LoginAcct extends React.Component {
           name="password" required autoComplete="new-password" onChange={e => this.onChange(e)} />
         <TextField className="GenericInput" type="password" placeholder="Confirm Password" value={confirmp}
           helperText={err_confirmp} error={err_confirmp.length>0}
-          name="confirmp" required onChange={e => this.onChange(e)} />
+          name="confirmp" required autoComplete="new-password" onChange={e => this.onChange(e)} />
       </div>
       <div className="LIbuttons">
         <Button variant="contained" color="primary" endIcon={<Icon>add</Icon>} size="small"

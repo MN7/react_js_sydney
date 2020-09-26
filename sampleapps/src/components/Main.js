@@ -4,6 +4,7 @@ import Header from './Header.js';
 import Footer from './Footer.js';
 import MyAppsList from './MyAppsList';
 import LoginAcct from './LoginAcct';
+import WGMain from './WordGameHelper/WGMain.js'
 
 
 export default class Main extends Component {
@@ -180,12 +181,38 @@ export default class Main extends Component {
     ;
   }
 
+  doWordSearch = (WGObj) => {
+    this.setState({"loading":true});
+    fetch("./api/v1/apps/wordsget", {
+      method: "POST", headers: { "Content-Type" : "application/json" },
+      body: JSON.stringify({"inputword": WGObj.inputword})
+    })
+    .then(res => {
+      this.setState({"loading": false});
+      return res.json();
+    })
+    .then(json => {
+      if (json.success) {
+        console.log("Words received from back-end. Result: "+JSON.stringify(json));
+        WGObj.handleSuccess(json.wordsList, json.dictList);
+      } else {
+        console.log("Words list failed with message: "+json.message);
+        WGObj.handleError(json.message);
+      }
+    })
+    .catch(err => {
+      WGObj.handleError(err);
+      console.log(err);
+    })
+    ;
+  }
+
   render() {
       switch (this.state.showForm) {
         case "Main": return(
           <form className="MainForm">
             <Header txt="Select Sample App" styl="Main-header" state={this.state} userLogin={() => this.userLogin()}/>
-            <MyAppsList state={this.state} />
+            <MyAppsList state={this.state} updateForm={nf=>this.updateForm(nf)} />
             <Footer txt="" styl="Main-footer" state={this.state}/>
           </form>
         );
@@ -203,6 +230,13 @@ export default class Main extends Component {
             <Footer txt="" styl="Main-footer" state={this.state}/>
           </form>
         );
+        case "WGMain": return(
+          <form className="WGMain">
+            <Header txt="Word Game Helper" styl="Main-header" state={this.state} userLogin={() => this.userLogin()}/>
+            <WGMain state={this.state} updateForm={nf=>this.updateForm(nf)} doWordSearch={obj=>this.doWordSearch(obj)}/>
+            <Footer txt="" styl="Main-footer" state={this.state}/>
+          </form>
+        )
         default: return(
           <form className="MainForm">
             <Header txt="Select Sample App" styl="Main-header" state={this.state} userLogin={() => this.userLogin()}/>
